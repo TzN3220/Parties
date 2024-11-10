@@ -1,0 +1,40 @@
+.centered {
+    display: flex;
+    align-items: center; /* מיישר את התווית והשדה לגובה אחד */
+    justify-content: center; /* ממרכז את כל הקבוצה */
+    gap: 8px; /* רווח קטן בין התווית לשדה */
+    margin-top: 50px; /* רווח למעלה */
+  }
+
+  .align-right {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    gap: 10px; /* רווח קטן בין הכיתוב לתיבת הבחירה */
+}
+
+select {
+    direction: rtl; /* מציב את תיבת הבחירה מימין לשמאל */
+}
+
+
+  #seven {
+    text-align: center; /* מיישר את התוכן במרכז */
+    font-weight: bold;  /* מדגיש את הטקסט */
+    font-size: 20px;    /* גודל פונט גדול יותר */
+    position: absolute; /* מיקום מוחלט */
+    top: 70px;          /* ממקם את האלמנט במרחק 20 פיקסלים מלמעלה */
+    left: 50%;          /* ממקם את האלמנט במרכז האופקי */
+    transform: translateX(-50%); /* מיישר את האלמנט למרכז האופקי */
+  }
+  #results {
+    text-align: center; /* מיישר את התוכן במרכז */
+    font-weight: bold;  /* מדגיש את הטקסט */
+    font-size: 20px;    /* גודל פונט גדול יותר */
+    position: absolute; /* מיקום מוחלט */
+    top: 10px;          /* ממקם את האלמנט במרחק 20 פיקסלים מלמעלה */
+    left: 50%;          
+    transform: translateX(-50%); /* מיישר את האלמנט למרכז האופקי */
+  }
+  
+  
