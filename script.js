@@ -1,141 +1,92 @@
-// משתנה לשמירת הגרף
-let myChart = null;
-
-// קריאה ל-API כדי לקבל את רשימת הערים
-fetch('https://data.gov.il/api/3/action/datastore_search?resource_id=929b50c6-f455-4be2-b438-ec6af01421f2&fields=%22שם%20ישוב%22&limit=32000')
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        
-        if (data && data.result && data.result.records && data.result.records.length > 0) {
-            // יצירת מערך של ערים ייחודיות
-            const cities = [...new Set(data.result.records.map(record => record['שם ישוב'] || ''))];
-
-            const citySelect = document.getElementById('city');
-            citySelect.innerHTML = ''; // איפוס רשימת הערים לפני הוספה
-
-            // הוספת ערים לשדה הבחירה
-            cities.forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
+document.addEventListener("DOMContentLoaded", () => {
+    fetchListOfCity();
+    const cityInput = document.getElementById("select_city_input");
+    cityInput.addEventListener("input", (event) => {
+        const cityName = event.target.value;
+        if (cityName) {
+            fetch7TopPartiesByCity(cityName);
         }
-    })
-    .catch(error => {
-        console.error('Error fetching city list:', error);
     });
-
-
-document.getElementById('city').addEventListener('change', function () {
-    const city = this.value;
-    const partiesDiv = document.getElementById('parties');
-    partiesDiv.innerHTML = ''; // איפוס התצוגה לפני בקשה חדשה
-
-    // אם קיים גרף קודם, נמחק אותו
-    if (myChart) {
-        myChart.destroy(); 
-    }
-
-    const storedData = localStorage.getItem(city);
-    if (storedData) {
-        // אם יש נתונים מקומיים, נטען אותם
-        renderParties(JSON.parse(storedData));
-    } else {
-        // קריאת API עם שאילתא לעיר שנבחרה
-        fetch(`https://data.gov.il/api/3/action/datastore_search?resource_id=929b50c6-f455-4be2-b438-ec6af01421f2&q=${city}&limit=32000`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.result && data.result.records && data.result.records.length > 0) {
-                    // שמירת הנתונים ב-localStorage עבור העיר
-                    localStorage.setItem(city, JSON.stringify(data.result.records));
-
-                    // קריאה לפונקציה שמציגה את המפלגות
-                    renderParties(data.result.records);
-                } else {
-                    partiesDiv.textContent = 'service error ---';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                partiesDiv.textContent = 'שגיאה בעת טעינת המידע.';
-            });
-    }
 });
 
-// פונקציה להצגת המפלגות והקולות
-function renderParties(records) {
-    const partiesDiv = document.getElementById('parties');
-    const list = document.createElement('ul');
-    const parties = {};
+function fetchListOfCity() {
+    const citiesURL =
+        "https://data.gov.il/api/3/action/datastore_search?resource_id=5c78e9fa-c2e2-4771-93ff-7f400a12f7ba&q=&limit=32000";
+    fetch(citiesURL)
+        .then((response) => response.json())
+        .then((data) => {
+            const cities = data.result.records.map(city => city["שם_ישוב"]);
+            const cityListElement = document.getElementById("city_list");
+            cities.forEach(cityName => {
+                const option = document.createElement("option");
+                option.value = cityName;
+                cityListElement.appendChild(option);
+            });
+        })
+        .catch(error => console.error("Error fetching cities:", error));
+}
 
-    // מעבר על כל הרשומות והוספת המפלגות עם קולות
-    records.forEach(record => {
-        const partyData = {};
+function fetch7TopPartiesByCity(cityName) {
+    const partiesURL = `https://data.gov.il/api/3/action/datastore_search?resource_id=929b50c6-f455-4be2-b438-ec6af01421f2&q={"שם ישוב":"${cityName}"}`;
+    
+    fetch(partiesURL)
+        .then((response) => response.json())
+        .then((data) => {
+            const cityData = data.result.records[0];
+            if (cityData) {
+                const partyVotes = Object.entries(cityData)
+                    .filter(([key]) => !["שם ישוב", "סמל ישוב", "בזב", "מצביעים", "פסולים", "כשרים", "_id"].includes(key))
+                    .map(([party, votes]) => [party, Number(votes)])
+                    .filter(([_, votes]) => votes > 10)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 7);
 
-        // מעבר על כל המפתחות של ה-record
-        Object.keys(record).forEach(key => {
-            // הוספת ערך למפלגה אם השם שלה לא ריק
-            if (key.trim() !== "") {
-                partyData[key] = record[key];
+                const labels = partyVotes.map(item => item[0]);
+                const dataValues = partyVotes.map(item => item[1]);
+
+                document.getElementById("chartTitle").textContent = `תוצאות הבחירות ב-${cityName}`;
+                
+                // הצגת הגרף
+                drawChart(labels, dataValues);
             }
-        });
+        })
+        .catch(error => console.error("Error fetching parties:", error));
+}
 
-        // הוספת המפלגות ונתוני הקולות למערך
-        for (let party in partyData) {
-            const votes = parseInt(partyData[party]) || 0; // המרת הערך למספר
-            if (votes > 0) { // הצגת המפלגות עם קולות
-                if (!parties[party]) {
-                    parties[party] = 0;
-                }
-                parties[party] += votes;
-            }
-        }
-    });
+function resetCanvas() {
+    document.getElementById("canvasContainer").innerHTML = `
+        <h1 id="chartTitle">תוצאות הבחירות</h1>
+        <p id="loadingMessage">אנא המתן... נטען נתונים...</p>
+        <canvas id="myChart" style="display:none;"></canvas>`;
+}
 
-    // יצירת רשימה עם המפלגות והקולות
-    for (let party in parties) {
-        const votes = parties[party];
-        const listItem = document.createElement('li');
-    }
+function drawChart(labels, data) {
+    resetCanvas();
+    const ctx = document.getElementById("myChart");
 
-    partiesDiv.innerHTML = ''; // איפוס התוכן הקודם
-    partiesDiv.appendChild(list); // הוספת הרשימה לתצוגה
+    // הצגת הגרף והסתרת הודעת הטעינה
+    document.getElementById("loadingMessage").style.display = "none";
+    document.getElementById("myChart").style.display = "block";
 
-    // סינון המפלגות עם יותר מ-10 קולות
-    const filteredParties = Object.entries(parties)
-        .filter(([party, votes]) => votes > 10)  // רק המפלגות עם יותר מ-10 קולות
-        .sort((a, b) => b[1] - a[1])  // סדר ירוד לפי כמות הקולות
-        .slice(0, 7); // לבחור את 7 המפלגות הגדולות ביותר
-
-    const labels = filteredParties.map(item => item[0]); // שמות המפלגות
-    const dataForChart = filteredParties.map(item => item[1]); // כמות הקולות
-    const s = document.getElementById('seven');
-    s.innerHTML = 'שבע המפלגות הגבוהות ביותר';
-    const r = document.getElementById('results');
-    r.innerHTML = 'תוצאות הבחירות';
-
-    // הגדרת הגרף ב-Chart.js
-    const ctx = document.getElementById('myChart').getContext('2d');
-    // יצירת גרף חדש
-    myChart = new Chart(ctx, {
-        type: 'bar', // גרף עמודות
+    new Chart(ctx, {
+        type: "bar",
         data: {
-            labels: labels,
+            labels,
             datasets: [{
-                label: 'קולות לכל מפלגה',
-                data: dataForChart,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)', // צבע מילוי
-                borderColor: 'rgba(54, 162, 235, 1)', // צבע קו הגבול
-                borderWidth: 1
+                label: "קולות לפי מפלגה",
+                data,
+                backgroundColor: "rgba(54, 162, 235, 0.5)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
             }]
         },
         options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
             scales: {
-                y: {
-                    beginAtZero: true
-                }
+                y: { beginAtZero: true }
             }
         }
     });

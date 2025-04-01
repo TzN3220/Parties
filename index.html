@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <title>תוצאות הבחירות</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div id="results"></div>
-    <div class="centered">
-        <label for="city" class="align-right">בחר יישוב:</label>
-        <select id="city" name="city">
-        </select>
-    </div>
-    <div id="seven"></div>
-    <div id="parties"></div>
-    <canvas id="myChart" width="200" height="100"></canvas>
-    <script src="script.js"></script>
-</body>
 
+    <h1 id="pageTitle"> בחר יישוב</h1>
+    
+    <input list="city_list" id="select_city_input" placeholder="בחר עיר">
+    <datalist id="city_list"></datalist>
+    
+    <div id="canvasContainer">
+        <h1 id="chartTitle">תוצאות הבחירות</h1>
+        <canvas id="myChart"></canvas>
+    </div>
+
+</body>
 </html>

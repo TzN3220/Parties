@@ -1,40 +1,54 @@
-.centered {
-    display: flex;
-    align-items: center; /* מיישר את התווית והשדה לגובה אחד */
-    justify-content: center; /* ממרכז את כל הקבוצה */
-    gap: 8px; /* רווח קטן בין התווית לשדה */
-    margin-top: 50px; /* רווח למעלה */
-  }
-
-  .align-right {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
-    gap: 10px; /* רווח קטן בין הכיתוב לתיבת הבחירה */
+/* עיצוב כללי */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    direction: rtl;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
 }
 
-select {
-    direction: rtl; /* מציב את תיבת הבחירה מימין לשמאל */
+/* כותרת ראשית */
+h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
+/* כותרת גרף */
+#chartTitle {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007BFF;
+    margin-bottom: 15px;
+}
 
-  #seven {
-    text-align: center; /* מיישר את התוכן במרכז */
-    font-weight: bold;  /* מדגיש את הטקסט */
-    font-size: 20px;    /* גודל פונט גדול יותר */
-    position: absolute; /* מיקום מוחלט */
-    top: 70px;          /* ממקם את האלמנט במרחק 20 פיקסלים מלמעלה */
-    left: 50%;          /* ממקם את האלמנט במרכז האופקי */
-    transform: translateX(-50%); /* מיישר את האלמנט למרכז האופקי */
-  }
-  #results {
-    text-align: center; /* מיישר את התוכן במרכז */
-    font-weight: bold;  /* מדגיש את הטקסט */
-    font-size: 20px;    /* גודל פונט גדול יותר */
-    position: absolute; /* מיקום מוחלט */
-    top: 10px;          /* ממקם את האלמנט במרחק 20 פיקסלים מלמעלה */
-    left: 50%;          
-    transform: translateX(-50%); /* מיישר את האלמנט למרכז האופקי */
-  }
-  
-  
+/* הודעת טעינה */
+#loadingMessage {
+    font-size: 20px;
+    color: #888;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* עיצוב הקלט של בחירת עיר */
+input {
+    width: 250px;
+    padding: 8px;
+    margin: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* מסגרת של הגרף */
+#canvasContainer {
+    width: 80%;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
